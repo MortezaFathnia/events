@@ -1,11 +1,11 @@
-import { useRouter } from 'next/router';
 import { Fragment } from 'react';
+import Head from 'next/head';
 
-import EventSummary from '../../components/event-detail/event-summary'
+import Comments from '../../components/input/comments';
+import EventSummary from '../../components/event-detail/event-summary';
 import EventLogistics from '../../components/event-detail/event-logistics';
 import EventContent from '../../components/event-detail/event-content';
 import { getAllEvents, getEventById } from '../../helpers/api-util';
-import ErrorAlert from '../../components/ui/error-alert';
 
 function EventDetailPage(props) {
   const event = props.selectedEvent;
@@ -15,20 +15,26 @@ function EventDetailPage(props) {
   }
 
   return (
-    <div>
-      <Fragment>
-        <EventSummary title={event.title} />
-        <EventLogistics
-          date={event.date}
-          address={event.location}
-          image={event.image}
-          imageAll={event.title}
+    <Fragment>
+      <Head>
+        <title>{event.title}</title>
+        <meta
+          name='description'
+          content={event.description}
         />
-        <EventContent>
-          <p>{event.description}</p>
-        </EventContent>
-      </Fragment>
-    </div>
+      </Head>
+      <EventSummary title={event.title} />
+      <EventLogistics
+        date={event.date}
+        address={event.location}
+        image={event.image}
+        imageAll={event.title}
+      />
+      <EventContent>
+        <p>{event.description}</p>
+      </EventContent>
+      <Comments eventId={event.id} />
+    </Fragment>
   )
 }
 
@@ -41,7 +47,7 @@ export async function getStaticProps(context) {
     props: {
       selectedEvent: event
     },
-    revalidate:30
+    revalidate: 30
   }
 }
 
@@ -50,9 +56,9 @@ export async function getStaticPaths() {
 
   const paths = events.map(event => ({ params: { eventId: event.id } }));
 
-  return{
-    paths:paths,
-    fallback:true
+  return {
+    paths: paths,
+    fallback: true
   }
 }
 

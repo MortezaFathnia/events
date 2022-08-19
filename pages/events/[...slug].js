@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { Fragment, useEffect, useState } from 'react';
+import Head from 'next/head';
 import useSWR from 'swr';
 
 import EventList from '../../components/events/event-list';
@@ -11,11 +12,10 @@ function FilteredEvents() {
   const [loadedEvents, setLoadedEvents] = useState();
   const router = useRouter();
   const fetcher = (url) => fetch(url).then(res => res.json())
-  const { data, error } = useSWR('https://next-project-69cb8-default-rtdb.firebaseio.com/events.json',fetcher);
+  const { data, error } = useSWR('https://next-project-69cb8-default-rtdb.firebaseio.com/events.json', fetcher);
 
   useEffect(() => {
     if (data) {
-      console.log(data)
       const events = [];
 
       for (const key in data) {
@@ -27,12 +27,23 @@ function FilteredEvents() {
 
       setLoadedEvents(events);
     }
-  }, [data])
+  }, [data]);
+ 
 
-  console.log(loadedEvents)
+  let pageHeadData = (
+    <Head>
+      <title>Filtered Events</title>
+      <meta
+        name='description'
+        content={`A list of filtered events`}
+      />
+    </Head>
+  );
+
   if (!loadedEvents) {
     return (
       <Fragment>
+        {pageHeadData}
         <p className='center'>Loading...</p>
       </Fragment>
     )
@@ -42,9 +53,19 @@ function FilteredEvents() {
 
   const filteredYear = filteredData[0];
   const filteredMonth = filteredData[1];
-  
+
   const numYear = +filteredYear;
   const numMonth = +filteredMonth;
+
+  pageHeadData = (
+    <Head>
+      <title>Filtered Events</title>
+      <meta
+        name='description'
+        content={`All events for ${numMonth}/${numYear}`}
+      />
+    </Head>
+  );
 
   if (isNaN(numYear) ||
     isNaN(numMonth) ||
@@ -52,9 +73,10 @@ function FilteredEvents() {
     numYear < 2021 ||
     numMonth < 1 ||
     numMonth > 12 ||
-    error ) {
+    error) {
     return (
       <Fragment>
+        {pageHeadData}
         <ErrorAlert>
           <p>Invalid filter. Please adjust your values!</p>
         </ErrorAlert>
@@ -73,6 +95,7 @@ function FilteredEvents() {
   if (!filteredEvents || filteredEvents.length === 0) {
     return (
       <Fragment>
+        {pageHeadData}
         <ErrorAlert>
           <p>No events found for the chosen filter!</p>
         </ErrorAlert>
@@ -87,6 +110,7 @@ function FilteredEvents() {
 
   return (
     <Fragment>
+      {pageHeadData}
       <ResultsTitle date={date} />
       <EventList events={filteredEvents} />
     </Fragment>
