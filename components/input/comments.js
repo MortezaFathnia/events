@@ -15,7 +15,7 @@ function Comments(props) {
   useEffect(() => {
     if (showComments) {
       setIsFetchingComments(true);
-      fetch('/api/comments/' + eventId)
+      fetch('/api/comments' + eventId)
         .then(response => {
           if (response.ok) {
             return response.json();
